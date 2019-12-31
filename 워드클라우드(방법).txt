@@ -1,0 +1,311 @@
+텍스트 마이닝을 워드클라우드 기법을 이용해 시각화를 하였다
+
+워드클라우드
+#1. 데이터에서 단어만 추출
+#2. 단어집합 생성
+#3. 단어 필터링
+#4. 단어 핸들링
+#5. txt파일로 저장하고 table로 읽어들이면서 공백제거
+#6. 단어 빈도수 저장
+#7. wordcloud 출력
+#8. 자바로딩 안될 때 : Sys.setenv(JAVA_HOME='c:\\Program Files\\Java\\jre1.8.0_231') jre경로
+Sys.setenv(JAVA_HOME='c:\\Program Files\\Java\\jre1.8.0_231')
+
+- 필요한 패키지
+install.packages('KoNLP') - 한글 설정
+install.packages("wordcloud")
+library(KoNLP)
+library(wordcloud)
+install.packages("RColorBrewer")
+library(RColorBrewer)
+library(dplyr)
+library(plyr)
+useSejongDic()
+data1=readLines("BTS유엔연설_국문_1.txt")
+data1
+
+#1. 데이터에서 단어만 추출
+data2=sapply(data1, extractNoun,USE.NAMES=F)#USE.NAMES=F:원본데이터를 컬럼으로 사용 안함
+data2
+head(unlist(data2),30)
+
+#2. 단어집합 생성
+data3=unlist(data2)
+data3
+
+#3. 단어 필터링 gsub(변경전글자, 변경후글자, 원본데이터)
+#4. 단어 핸들링
+data3=gsub("\\d+","",data3)
+data3=gsub("돌","",data3)
+data3=gsub("저","나",data3)
+data3=gsub("내","나",data3)
+data3=gsub("하게","",data3)
+data3=gsub("해서","",data3)
+data3=gsub(" ","",data3)
+data3=gsub("-","",data3)
+data3=gsub("것","",data3)
+data3
+
+#5. txt파일로 저장하고 table로 읽어들이면서 공백제거
+write(unlist(data3),"BTS_국.txt")
+data4=read.table("BTS_국.txt")
+data4
+nrow(data4)
+
+#6. 단어 빈도수 저장
+wc=table(data4)
+wc
+head(sort(wc,decreasing = T),20)
+
+
+#7. wordcloud 출력
+pal=brewer.pal(9,'Set3')
+wordcloud(names(wc),freq = wc, scale = c(5,1), rot.per = 0.25, min.freq = 1, random.order = F, random.color = T,colors = pal)
+legend(0.3,1,"BTS유엔 연설문",cex=0.8,fill=NA, border=NA, bg='white', text.col='red', text.font=2,box.col='red')
+
+scale=c(5,0.2), #빈도가 가장 큰 단어와 가장 빈도가 작은단어 폰사 사이 크기
+rot.per=0.1, #90도 회전해서 보여줄 단어 비율
+min.freq=3, max.words=100, # 빈도 3이상, 100미만
+random.order=F, # True : 랜덤배치, False : 빈도수가 큰단어를 중앙에 배치
+random.color=T, # True : 색랜덤, False : 빈도순
+colors=brewer.pal(11, "Paired"), #11은 사용할 색상개수, 두번째는 색상타입이름
+family="font")
+
+참고 : https://steemit.com/wordcloud/@hironlee/r-wordcloud
+
+library(dplyr)
+library(plyr)
+library(ggplot2)
+library(lubridate)
+library(stringr)
+library(devtools)
+library(RColorBrewer)
+library(foreign)
+library(googleVis)
+library(KoNLP)
+library(wordcloud)
+setwd("c:/Shin_Python/r_data")# 작업 디렉토리 설정
+getwd()
+
+useSejongDic()
+
+#1. 데이터에서 단어만 추출
+data1=readLines("remake.txt")
+data1
+data2=sapply(data1, extractNoun,USE.NAMES = F)
+data2
+
+#2. 단어집합 생성
+data3=unlist(data2)
+data3
+
+#3. 단어 필터링 gsub(변경전글자, 변경후글자, 원본데이터)
+#4. 단어 핸들링
+data3=Filter(function(x){
+  nchar(x)<=10
+},data3
+)
+data3
+
+data3=gsub("\\d+","",data3)
+data3=gsub("쌍수","쌍꺼풀",data3)
+data3=gsub("쌍커풀","쌍꺼풀",data3)
+data3=gsub("메부리코","매부리코",data3)
+data3=gsub("수","",data3)
+data3=gsub(" ","",data3)
+data3=gsub("\\.","",data3)
+data3=gsub("\\'","",data3)
+data3
+
+#5. txt파일로 저장하고 table로 읽어들이면서 공백제거
+write(unlist(data3),"remake_2.txt")
+data4=read.table("remake_2.txt")
+data4; nrow(data4)
+
+#6. 단어 빈도수 저장
+wc=table(data4)
+wc
+head(sort(wc, decreasing=T),20)
+
+#3. 단어 필터링 gsub(변경전글자, 변경후글자, 원본데이터)
+#4. 단어 핸들링
+txt=readLines("성형gsub.txt")#데이터에 커서가 있을 경우 에러 발생
+txt
+cnttxt=length(txt)
+cnttxt
+i=1
+for(i in 1:cnttxt){
+  data3=gsub((txt[i]),"",data3)
+}
+data3
+data3=Filter(function(x){
+  nchar(x)>=2
+},data3
+)
+data3
+#5. txt파일로 저장하고 table로 읽어들이면서 공백제거
+write(unlist(data3),"remake_2.txt")
+data4=read.table("remake_2.txt")
+data4; nrow(data4)
+
+#6. 단어 빈도수 저장
+wc=table(data4)
+wc
+head(sort(wc, decreasing=T),20)
+
+
+#7. wordcloud 출력
+pal=brewer.pal(8, "Set2")
+wordcloud(names(wc), freq = wc, scale = c(5,1), rot.per = 0.25, min.freq = 2, random.order = F, random.color = T, colors = pal)
+
+useSejongDic()
+mergeUserDic(data.frame(readLines("제주도여행지.txt"),"ncn"))
+
+txt=readLines("jeju.txt")
+place=sapply(txt, extractNoun, USE.NAMES = F)
+place
+head(unlist(place),30)
+cdata=unlist(place)
+place=str_replace_all(cdata,"[^[:alpha:]]","")#한글 영어 외에 모든것 삭제
+place=gsub(" ","",place)
+txt=readLines("제주도여행코스gsub.txt")
+txt
+cnt=length(txt)
+i=1
+for(i in 1:cnt){
+  place=gsub((txt[i]),"",place)
+}
+place=Filter(function(x){
+  nchar(x)>=2
+}, place)
+write(unlist(place),"jeju_2.txt")
+rev=read.table("jeju_2.txt")
+nrow(rev)
+wc=table(rev)
+wc
+head(sort(wc, decreasing = T),30)
+dev.new()
+pal=brewer.pal(9, "Set3")
+wordcloud(names(wc),freq=wc,scale = c(5,1), rot.per = 0.25, min.freq = 2, random.order = F, random.color = T, colors = pal)
+dev.off()
+
+
+useSejongDic()
+mergeUserDic(data.frame(readLines("서울명소merge.txt"),"ncn"))
+txt=readLines("seoul_go.txt")
+
+data1=sapply(txt, extractNoun,USE.NAMES = F)
+
+data2=unlist(data1)
+
+data3=Filter(function(x){
+  nchar(x)<=10
+},data2
+)
+data3
+data3=str_replace_all(data3,"[^[:alpha:]]","")#한글 영어 외에 모든것 삭제
+data3=gsub("\\d+","",data3)
+data3=gsub(" ","",data3)
+data3=gsub("\\.","",data3)
+data3=gsub("\\'","",data3)
+data3
+txt=readLines("서울명소gsub.txt")
+cnt=length(txt)
+i=1
+for(i in 1:cnt){
+  data3=gsub((txt[i]),"",data3)
+}
+data3=Filter(function(x){
+  nchar(x)>=2
+},data3
+)
+
+write(unlist(data3),"seoul_go2.txt")
+data4=read.table("seoul_go2.txt")
+data4; nrow(data4)
+
+wc=table(data4)
+wc
+head(sort(wc, decreasing=T),20)
+
+pal=brewer.pal(8, "Set2")
+wordcloud(names(wc), freq = wc, scale = c(5,1), rot.per = 0.25, min.freq = 2, random.order = F, random.color = T, colors = pal)
+
+#영문 워드클라우드
+install.packages("tm")
+library(tm)
+data1=readLines("steve.txt")
+class(data1)
+corp1=VCorpus(VectorSource(data1)) #말뭉치 작업
+corp1
+
+inspect(corp1)
+
+tdm=TermDocumentMatrix(corp1)
+tdm
+
+m=as.matrix(tdm)
+m
+
+corp2=tm_map(corp1, stripWhitespace)#여러개의 공백을 하나로
+corp2=tm_map(corp2, tolower)#대문자는 소문자로
+corp2=tm_map(corp2, removeNumbers)#숫자 제거
+corp2=tm_map(corp2, removePunctuation)#마침표,콤마,콜론,세미콜론 제거
+corp2=tm_map(corp2, PlainTextDocument)#일반문서 변환
+sword2=c(stopwords('en'), "and", "but", "not")#불용어제거 및 단어추가
+#content_transformer(tolower)
+corp2=tm_map(corp2, removeWords,sword2)#불용어제거
+tdm2=TermDocumentMatrix(corp2)
+tdm2
+m2=as.matrix(tdm2)
+m2
+class(m2)
+colnames(m2)=c(1:59)
+m2
+freq1=sort(rowSums(m2),decreasing = T)
+head(freq1)
+freq2=sort(colSums(m2),decreasing = T)
+head(freq2,20)
+findFreqTerms(tdm2,2)
+findAssocs(tdm2,'apple',0.5)
+pal=brewer.pal(7,"Set3")
+wordcloud(names(freq1),freq=freq1, scale=c(5,1), min.freq = 1, colors = pal, random.color = F, random.order = T)
+dev.new()
+
+data1=readLines("BTS유엔연설_영문1.txt")
+class(data1)
+corp1=VCorpus(VectorSource(data1)) #말뭉치 작업
+corp1
+
+inspect(corp1)
+
+tdm=TermDocumentMatrix(corp1)
+tdm
+
+m=as.matrix(tdm)
+m
+
+corp2=tm_map(corp1, stripWhitespace)#여러개의 공백을 하나로
+corp2=tm_map(corp2, tolower)#대문자는 소문자로
+corp2=tm_map(corp2, removeNumbers)#숫자 제거
+corp2=tm_map(corp2, removePunctuation)#마침표,콤마,콜론,세미콜론 제거
+corp2=tm_map(corp2, PlainTextDocument)#일반문서 변환
+sword2=c(stopwords('en'), "and", "but", "not")#불용어제거 및 단어추가
+#content_transformer(tolower)
+corp2=tm_map(corp2, removeWords,sword2)#불용어제거
+tdm2=TermDocumentMatrix(corp2)
+tdm2
+m2=as.matrix(tdm2)
+m2
+class(m2)
+colnames(m2)=c(1:59)
+m2
+freq1=sort(rowSums(m2),decreasing = T)
+head(freq1)
+freq2=sort(colSums(m2),decreasing = T)
+head(freq2,20)
+findFreqTerms(tdm2,2)
+findAssocs(tdm2,'bts',0.5)
+pal=brewer.pal(7,"Set3")
+wordcloud(names(freq1),freq=freq1, scale=c(5,1), min.freq = 1, colors = pal, random.color = T, random.order = F)
+dev.new()
