@@ -13,15 +13,6 @@ kko2=gsub(" ","",kko2)
 kko2 <- gsub('[ㄱ-ㅎ]','',kko2)
 kko2 <- gsub('\\(사진\\)','',kko2)
 kko2 <- gsub('\\(이모티콘\\)','',kko2)
-kko2 <- gsub('미노햄','미노스',kko2)
-kko2 <- gsub('미노형','미노스',kko2)
-kko2 <- gsub('류딸','간달프옆집류딸',kko2)
-kko2 <- gsub('간달이','간달프옆집류딸',kko2)
-kko2 <- gsub('간달','간달프옆집류딸',kko2)
-kko2 <- gsub('굳행','굳바이',kko2)
-kko2 <- gsub('굳행님','굳바이',kko2)
-kko2 <- gsub('굳형','굳바이',kko2)
-kko2 <- gsub('준앵이','준앵잉',kko2)
 kko2 <- gsub('[0-9]','',kko2)
 kko2 <- gsub('\\/','',kko2)
 kko2 <- gsub('\\[','',kko2)
@@ -39,7 +30,6 @@ kko3=Filter(function(x){
 },kko3
 )
 kko3
-kko3 <- gsub('간달프옆집류딸프옆집간달프옆집류딸프옆집류딸','간달프옆집류딸',kko3)
 write(unlist(kko3),"C:\\Shin_Python\\R분석\\kakao2.txt")
 kko4=read.table("C:\\Shin_Python\\R분석\\kakao2.txt")
 kko4
@@ -76,6 +66,6 @@ for(i in 1:length(bchart)){
 top10=head(sort(wc, decreasing = T),10)
 #top10
 #bar
-bp=barplot(bchart, main = "ch104 카톡방 키워드 top10",col=colors, cex.names=1, las=1, ylim=c(0,150))
+bp=barplot(bchart, main = "카톡방 키워드 top10",col=colors, cex.names=1, las=1, ylim=c(0,150))
 text(x=bp,y=bchart*0.95, labels = paste(bchart,"건"), col = "black", cex=1)
 legend(5,75,"12월 29일 ~ 12월 31일",cex=0.8,fill=NA, border=NA, bg='white', text.col='red', text.font=1,box.col='red')
