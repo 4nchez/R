@@ -1,0 +1,104 @@
+PA=read.csv("2019등록공연장현황.csv",header=T)
+attach(PA)
+colnames(PA)[8]="공연장면적"
+str(PA)
+head(PA)
+tail(PA)
+df=data.frame(PA[2:4],PA[6],PA[8],PA[10])
+attach(df)
+str(df)
+head(df)
+tail(df)
+summary(df)
+
+df[df==""]=NA
+df[df=="0"]=NA
+df[df=="-"]=NA
+df=df[complete.cases(df), ]
+table(df$공연장면적)
+summary(df)
+df$공연장면적=as.numeric(gsub(",","",df$공연장면적))
+df=df[complete.cases(df), ]
+head(df)
+df$객석수=as.numeric(gsub(",","",df$객석수))
+df=df[complete.cases(df), ]
+head(df)
+str(df)
+
+person=round(df$공연장면적/df$객석수,2)
+person
+str(person)
+df=cbind(df,person)
+head(df)
+summary(df$person)
+
+grade=ifelse(df$person>10, "A", ifelse(df$person>5,"B",ifelse(df$person>=2,"C","D")))
+df=cbind(df,grade)
+head(df)
+summary(df$grade)
+
+주소=paste0(df$시도별,df$시군구,'')
+head(주소)
+df$시도별=cbind(주소)
+colnames(df)[1]="주소"
+head(df)
+#df=df[,!names(df)%in%"시도별"]
+df=df[,!names(df)%in%"시군구"]
+
+
+#str(df3)
+#df3
+#df4=gsub('\n','',df3)
+#df4=gsub('\\.','',df4)
+#df4
+#df5=gsub('\\-','',df4)
+#df5=gsub(' ','',df5)
+#df5
+#i=1
+#while(i<length(df5)+1){
+#  if(nchar(df5[i])!=8){
+#    d=c(df5[i])
+#  }
+#  i=i+1
+#}
+# .- 등으로 통일되지 않은 날짜 포맷 맞추기
+conv0date = function(strings,ptrn) {
+  if (str_detect(strings,ptrn)) {
+    temp = str_split(strings,ptrn)
+    #print(length(temp))
+    if (nchar(temp[[1]][2]) < 2) {
+      # str_split 으로 패턴을 이용해 리스트로 만들수 있으며, 반환되는 리스트의 접근은 [[1]][1] 이 첫번째 인덱스임.
+      temp[[1]][2] = paste("0", temp[[1]][2], sep="")
+    }
+    if (length(temp) > 2) {
+      if (nchar(temp[[1]][3]) < 2) {
+        temp[[1]][3] = paste("0", temp[[1]][3], sep="")
+      }
+      temp1 = paste(temp[[1]][2], temp[[1]][3], sep="")  
+    } else {
+      # 일자가 없고 년월 포맷일 경우 일 부분에 01이 들어가도록 함.
+      temp1 = paste(temp[[1]][2], "01", sep="")  
+    }
+    temp2 = paste(temp[[1]][1], temp1, sep="")
+    return(temp2)
+  } else {
+    return(strings)
+  }
+}
+tail(df$개관일자)
+i=1
+nrow(df)
+df$개관일자 = as.character(df$개관일자)
+for (i in 1:nrow(df)) {
+  df$개관일자[i] = conv0date(df$개관일자[i],"[:punct:]")
+}
+df$개관일자 = str_replace_all(df$개관일자, "\n","")
+df$개관일자 = str_replace_all(df$개관일자, " ","")
+str(df)
+table(df$개관일자)
+summary(df)
+df$개관일자 = as.Date(df$개관일자,"%Y%m%d")
+write.csv(df,"공연장.csv")
+df=read.csv("공연장.csv")
+
+plot(df$주소)
