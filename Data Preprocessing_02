@@ -1,0 +1,99 @@
+df=read.csv("전국문화축제표준데이터.csv")
+df=data.frame(df[1],df[3:4],df[12],df[14:15])
+df
+head(df)
+cnt=length(df)
+cnt
+names(df)[cnt]
+names(df)[cnt]="LAT"
+names(df)[cnt-1]
+names(df)[cnt-1]="LON"
+names(df)[cnt-1]
+head(df,1)
+summary(df)
+nrow(df)
+df=df[complete.cases(df), ]#완벽한 값만 가져옴
+nrow(df)
+summary(df)
+
+cnt=1 #1-6
+head(table(df[cnt]))
+tail(table(df[cnt]))
+head(df[order(df[cnt]), ])#order 빈값이 있는것만 가져옴 - : 내림차순
+length(df$축제명[df$축제명==""])
+df[df==""]=NA
+summary(df)
+df=df[complete.cases(df), ]
+nrow(df)
+
+df[df=="없음"]=NA
+summary(df)
+df=df[complete.cases(df), ]
+nrow(df)
+df[df=="-"]=NA
+summary(df)
+df=df[complete.cases(df), ]
+nrow(df)
+
+attach(df)
+str(df)
+df$축제시작일자=as.Date(df$축제시작일자)
+df$축제종료일자=as.Date(df$축제종료일자)
+str(df)
+df$gigan=df$축제종료일자-df$축제시작일자+1
+head(df$gigan)
+df
+df=cbind(df,gigan)
+df=df[,!names(df)%in%"gigan.1"] #열 삭제
+df
+head(df)
+table(df$gigan)
+subset(df,df$축제시작일자>df$축제종료일자)
+df=subset(df,df$gigan>=0)
+table(df$gigan)
+bigo=ifelse(df$gigan>365, "1년이상", ifelse(df$gigan>=50,"50일이상",ifelse(df$gigan==1,"1일","50일미만")))
+df=cbind(df,bigo)
+head(df)
+
+df$mm=month(df$축제시작일자)
+df$mm
+
+table(df$mm)
+hist(df$mm)
+df$yy=year(df$축제시작일자)
+table(df$yy)
+hist(df$yy)
+
+df$day_week=wday(df$축제시작일자, label=T)
+df$day_week
+table(df$day_week)
+plot(df$day_week)
+
+head(df)
+
+savePlot("day_week_chart", ttype = "png")
+library(stringr)
+주소=str_split_fixed(df$소재지도로명주소," ",2)
+head(주소)
+주소1=주소[,1]
+df[4]=주소1
+head(df)
+colnames(df)[4]="주소"
+
+summary(df$주소)
+table(df$주소)
+table(df$gigan)
+write.csv(df,"축제.csv")
+df=read.csv("축제.csv")
+head(df)
+
+par(mfrow=c(1,3))
+plot(table(df$yy),type="b", lty=3, col=2, pch=5, lwd=3, cex=3, main="년간 축제 분석", sub="전국(2011-2020)", xlab="년도", ylab="횟수", ylim=c(0,800), xlim=c(2016,2020))
+plot(table(df$mm),type='b')
+plot(df$주소, type='b')
+
+par(mfrow=c(1,1))
+plot(df$주소, type='h')
+abline(h=mean(df$gigan), col="green", lty=2)
+mean(df$gigan)
+boxplot(df$gigan)
